@@ -9,7 +9,7 @@ GENERATE {
   ?audioClip dc:title ?title .
   ?audioFile rdf:type ac:AudioFile
 }
-SOURCE ?searchURI AS ?source
+SOURCE <https://www.europeana.eu/api/v2/search.json?wskey=$token&query=$pattern> AS ?source
 ITERATOR iter:JSONPath(?source,"$..items[*]") AS ?res
 WHERE {
   BIND(IRI(fn:JSONPath(?res, "link")) AS ?audioClip)

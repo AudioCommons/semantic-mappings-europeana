@@ -21,37 +21,38 @@ GENERATE {
   ?audioCollection
       rdf:type ac:AudioCollection, prov:Entity ;
       prov:wasAttributedTo <http://europeana.eu> ;
-      ac:memberNode ?audioCollectionNode ;
       ac:nodeCount ?nodeCount .
 
-  ?audioCollectionNode
-      a ac:AudioCollectionNode ;
-      ac:nodeIndex ?index ;
-      ac:nodeContent ?audioClip .
+  GENERATE {
+    ?audioCollection ac:memberNode ?audioCollectionNode .
+    ?audioCollectionNode
+        a ac:AudioCollectionNode ;
+        ac:nodeIndex ?index ;
+        ac:nodeContent ?audioClip .
 
-  ?audioClip
-      rdf:type ac:AudioClip ;
-      dc:title ?title ;
-      ac:available_as ?audioFile ;
-      rdf:type prov:Entity ;
-      prov:wasAttributedTo <http://europeana.eu> .
-  ?audioFile rdf:type ac:AudioFile .
+    ?audioClip
+        rdf:type ac:AudioClip ;
+        dc:title ?title ;
+        ac:available_as ?audioFile ;
+        rdf:type prov:Entity ;
+        prov:wasAttributedTo <http://europeana.eu> .
+    ?audioFile rdf:type ac:AudioFile .
+  }
+  ITERATOR iter:JSONElement(?source,"$.items[*]") AS ?resIterator
+  WHERE {
+    BIND(BNODE() AS ?audioCollectionNode)
+    BIND(fn:JSONPath(?resIterator, "element") AS ?res)
+    BIND(fn:JSONPath(?resIterator, "position") AS ?indexFromZero)
+    BIND(?indexFromZero + 1 AS ?index)
+
+    BIND(IRI(fn:JSONPath(?res, "link")) AS ?audioClip)
+    BIND(fn:JSONPath(?res, "type") AS ?type)
+    BIND(fn:JSONPath(?res, "title[0]") AS ?title)
+    BIND(IRI(fn:JSONPath(?res, "edmIsShownBy[0]")) AS ?audioFile)
+  }
 }
 SOURCE <https://www.europeana.eu/api/v2/search.json?wskey=$token&query=$pattern&qf=what:SOUND> AS ?source
-ITERATOR iter:JSONElement(?source,"$.items[*]") AS ?resIterator
 WHERE {
-  {	SELECT ?searchAction ?audioCollection WHERE {
-      BIND(BNODE() AS ?searchAction)
-      BIND(BNODE() AS ?audioCollection)
-    }
-  }
-  BIND(BNODE() AS ?audioCollectionNode)
-  BIND(fn:JSONPath(?resIterator, "element") AS ?res)
-  BIND(fn:JSONPath(?resIterator, "position") AS ?indexFromZero)
-  BIND(?indexFromZero + 1 AS ?index)
-
-  BIND(IRI(fn:JSONPath(?res, "link")) AS ?audioClip)
-  BIND(fn:JSONPath(?res, "type") AS ?type)
-  BIND(fn:JSONPath(?res, "title[0]") AS ?title)
-  BIND(IRI(fn:JSONPath(?res, "edmIsShownBy[0]")) AS ?audioFile)
+  BIND(BNODE() AS ?searchAction)
+  BIND(BNODE() AS ?audioCollection)
 }

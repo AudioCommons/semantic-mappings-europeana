@@ -37,8 +37,8 @@ GENERATE {
       prov:wasAttributedTo <http://europeana.eu> .
   ?audioFile rdf:type ac:AudioFile .
 }
-SOURCE <https://www.europeana.eu/api/v2/search.json?wskey=$token&query=$pattern> AS ?source
-ITERATOR iter:JSONElement(?source,"$.results[*]") AS ?resIterator
+SOURCE <https://www.europeana.eu/api/v2/search.json?wskey=$token&query=$pattern&qf=what:SOUND> AS ?source
+ITERATOR iter:JSONElement(?source,"$.items[*]") AS ?resIterator
 WHERE {
   {	SELECT ?searchAction ?audioCollection WHERE {
       BIND(BNODE() AS ?searchAction)
@@ -54,5 +54,4 @@ WHERE {
   BIND(fn:JSONPath(?res, "type") AS ?type)
   BIND(fn:JSONPath(?res, "title[0]") AS ?title)
   BIND(IRI(fn:JSONPath(?res, "edmIsShownBy[0]")) AS ?audioFile)
-  FILTER(?type = "SOUND")
 }

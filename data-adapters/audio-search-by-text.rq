@@ -5,15 +5,18 @@ PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-GENERATE {
-  ?audioClip
-      rdf:type ac:AudioClip ;
-      dc:title ?title ;
-      ac:available_as ?audioFile ;
-      rdf:type prov:Entity ;
-      prov:wasAttributedTo <http://europeana.eu> .
+PREFIX schema: <http://schema.org/>
 
-  ?audioFile rdf:type ac:AudioFile .
+GENERATE {
+  <http://europeana.eu>
+      rdf:type prov:Agent, foaf:Organization ;
+      foaf:name "Europeana" .
+
+  ?searchAction
+      a schema:SearchAction ;
+      schema:object <http://europeana.eu> ;
+      schema:query "$pattern" ;
+      schema:result ?audioCollection .
 
   ?audioCollection
       rdf:type ac:AudioCollection, prov:Entity ;
@@ -26,15 +29,19 @@ GENERATE {
       ac:nodeIndex ?index ;
       ac:nodeContent ?audioClip .
 
-  <http://europeana.eu>
-      rdf:type prov:Agent, foaf:Organization ;
-      foaf:name "Europeana" .
-
+  ?audioClip
+      rdf:type ac:AudioClip ;
+      dc:title ?title ;
+      ac:available_as ?audioFile ;
+      rdf:type prov:Entity ;
+      prov:wasAttributedTo <http://europeana.eu> .
+  ?audioFile rdf:type ac:AudioFile .
 }
 SOURCE <https://www.europeana.eu/api/v2/search.json?wskey=$token&query=$pattern> AS ?source
 ITERATOR iter:JSONElement(?source,"$.results[*]") AS ?resIterator
 WHERE {
-  {	SELECT ?audioCollection WHERE {
+  {	SELECT ?searchAction ?audioCollection WHERE {
+      BIND(BNODE() AS ?searchAction)
       BIND(BNODE() AS ?audioCollection)
     }
   }

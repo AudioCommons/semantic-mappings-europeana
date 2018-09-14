@@ -49,7 +49,7 @@ GENERATE {
     BIND(fn:JSONPath(?res, "type") AS ?type)
     BIND(fn:JSONPath(?res, "title[0]") AS ?title)
     BIND(IRI(fn:JSONPath(?res, "edmIsShownBy[0]")) AS ?audioFile)
-  }
+  } .
 }
 SOURCE <https://www.europeana.eu/api/v2/search.json?wskey=$token&query=$pattern&qf=what:SOUND> AS ?source
 WHERE {

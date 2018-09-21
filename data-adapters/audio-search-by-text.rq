@@ -3,6 +3,7 @@ PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>
 PREFIX fn: <http://w3id.org/sparql-generate/fn/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX schema: <http://schema.org/>
@@ -60,14 +61,14 @@ SOURCE <https://www.europeana.eu/api/v2/search.json?wskey=$token&query=$pattern&
 WHERE {
   BIND(BNODE() AS ?searchAction)
   BIND(fn:JSONPath(?source, "success") AS ?wasSuccessful)
-  BIND(IF(?wasSuccessful, schema:CompletedActionStatus, schema:FailedActionStatus) AS ?actionStatus)
+  BIND(IF(BOUND(?wasSuccessful), schema:CompletedActionStatus, schema:FailedActionStatus) AS ?actionStatus)
   OPTIONAL {
   	BIND(BNODE() AS ?audioCollection) .
-    FILTER(?wasSuccessful)
+    FILTER(BOUND(?wasSuccessful))
   }
   OPTIONAL {
   	BIND(BNODE() AS ?error) .
-    FILTER(!?wasSuccessful)
+    FILTER(!BOUND(?wasSuccessful))
   }
   BIND(fn:JSONPath(?source, "error") AS ?errorMessage)  .
   BIND(NOW() AS ?endTime)

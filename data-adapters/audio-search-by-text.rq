@@ -16,12 +16,17 @@ GENERATE {
       a schema:SearchAction ;
       schema:object <http://europeana.eu> ;
       schema:query "$pattern" ;
-      schema:result ?audioCollection .
+      schema:endTime ?endTime;
+      schema:actionStatus ?actionStatus;
+      schema:result ?audioCollection ;
+      schema:error ?error .
 
   ?audioCollection
       rdf:type ac:AudioCollection, prov:Entity ;
       prov:wasAttributedTo <http://europeana.eu> ;
       ac:nodeCount ?nodeCount .
+
+  ?error rdfs:label ?errorMessage .
 
   GENERATE {
     ?audioCollection ac:memberNode ?audioCollectionNode .
@@ -38,7 +43,7 @@ GENERATE {
         prov:wasAttributedTo <http://europeana.eu> .
     ?audioFile rdf:type ac:AudioFile .
   }
-  ITERATOR iter:JSONElement(?source,"$.items[*]") AS ?resIterator
+  ITERATOR iter:JSONElement(?source,"items[*]") AS ?resIterator
   WHERE {
     BIND(BNODE() AS ?audioCollectionNode)
     BIND(fn:JSONPath(?resIterator, "element") AS ?res)
@@ -54,5 +59,16 @@ GENERATE {
 SOURCE <https://www.europeana.eu/api/v2/search.json?wskey=$token&query=$pattern&qf=what:SOUND> AS ?source
 WHERE {
   BIND(BNODE() AS ?searchAction)
-  BIND(BNODE() AS ?audioCollection)
+  BIND(fn:JSONPath(?source, "success") AS ?wasSuccessful)
+  BIND(IF(?wasSuccessful, schema:CompletedActionStatus, schema:FailedActionStatus) AS ?actionStatus)
+  OPTIONAL {
+  	BIND(BNODE() AS ?audioCollection) .
+    FILTER(?wasSuccessful)
+  }
+  OPTIONAL {
+  	BIND(BNODE() AS ?error) .
+    FILTER(!?wasSuccessful)
+  }
+  BIND(fn:JSONPath(?source, "error") AS ?errorMessage)  .
+  BIND(NOW() AS ?endTime)
 }

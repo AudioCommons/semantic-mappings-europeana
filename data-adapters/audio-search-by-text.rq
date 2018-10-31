@@ -24,8 +24,8 @@ GENERATE {
       schema:error ?error .
 
   ?audioCollection
-      rdf:type ac:AudioCollection, prov:Entity ;
-      prov:wasAttributedTo <http://europeana.eu> ;
+      rdf:type ac:AudioCollection; #, prov:Entity ;
+  #    prov:wasAttributedTo <http://europeana.eu> ;
       ac:nodeCount ?nodeCount .
 
   ?error rdfs:label ?errorMessage .
@@ -40,9 +40,9 @@ GENERATE {
     ?audioClip
         rdf:type ac:AudioClip ;
         dc:title ?title ;
-        ac:available_as ?audioFile ;
-        rdf:type prov:Entity ;
-        prov:wasAttributedTo <http://europeana.eu> .
+        ac:available_as ?audioFile .
+#        rdf:type prov:Entity ;
+#        prov:wasAttributedTo <http://europeana.eu> .
     ?audioFile rdf:type ac:AudioFile .
   }
   ITERATOR iter:JSONElement(?source,"items[*]") AS ?resIterator

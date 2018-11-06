@@ -44,10 +44,12 @@ GENERATE {
         dc:title ?title ;
 	dc:description ?desc ;
 	cc:license ?license ;
+	ac:originalFile ?origFile ;	
         ac:available_as ?audioFile .
 #        rdf:type prov:Entity ;
 #        prov:wasAttributedTo <http://europeana.eu> .
     ?audioFile rdf:type ac:AudioFile .
+    ?origFile rdf:type ac:AudioFile 
   }
   ITERATOR iter:JSONElement(?source,"items[*]") AS ?resIterator
   WHERE {
@@ -61,6 +63,7 @@ GENERATE {
     BIND(fn:JSONPath(?res, "title[0]") AS ?title)
     BIND(fn:JSONPath(?res, "rights[0]") AS ?license)
     BIND(fn:JSONPath(?res, "dcDescription[0]") AS ?desc)
+    BIND(IRI(fn:JSONPath(?res, "edmIsShownAt[0]")) AS ?origFile)
     BIND(IRI(fn:JSONPath(?res, "edmIsShownBy[0]")) AS ?audioFile)
   } .
 }

@@ -41,6 +41,7 @@ GENERATE {
     ?audioClip
         rdf:type ac:AudioClip ;
         dc:title ?title ;
+	dc:description ?desc ;
         ac:available_as ?audioFile .
 #        rdf:type prov:Entity ;
 #        prov:wasAttributedTo <http://europeana.eu> .
@@ -56,6 +57,7 @@ GENERATE {
     BIND(IRI(fn:JSONPath(?res, "link")) AS ?audioClip)
     BIND(fn:JSONPath(?res, "type") AS ?type)
     BIND(fn:JSONPath(?res, "title[0]") AS ?title)
+    BIND(fn:JSONPath(?res, "dcDescription[0]") AS ?desc)
     BIND(IRI(fn:JSONPath(?res, "edmIsShownBy[0]")) AS ?audioFile)
   } .
 }

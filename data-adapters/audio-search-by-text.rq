@@ -67,7 +67,7 @@ GENERATE {
     BIND(IRI(fn:JSONPath(?res, "edmIsShownBy[0]")) AS ?audioFile)
   } .
 }
-SOURCE <https://www.europeana.eu/api/v2/search.json?wskey=$token&query=$pattern&qf=what:SOUND> AS ?source
+SOURCE <https://www.europeana.eu/api/v2/search.json?wskey=$token&query=$pattern&qf=what:SOUND&reusability=RESTRICTED&reusability=OPEN> AS ?source
 WHERE {
   BIND(BNODE() AS ?searchAction)
   BIND(fn:JSONPath(?source, "success") AS ?wasSuccessful)

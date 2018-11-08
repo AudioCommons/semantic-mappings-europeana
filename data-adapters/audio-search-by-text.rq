@@ -42,17 +42,17 @@ GENERATE {
     ?audioClip
         rdf:type ac:AudioClip ;
         dc:title ?title ;
-	dc:description ?desc ;
-	ac:author ?author ;
-	cc:license ?license ;
-	ac:originalFile _:originalFile ;	
-        ac:available_as ?audioFile .
+	      dc:description ?desc ;
+	      ac:author ?author ;
+	      cc:license ?license ;
+	      ac:originalFile _:originalFile ;
+        ac:availableAs ?audioFile .
 #        rdf:type prov:Entity ;
 #        prov:wasAttributedTo <http://europeana.eu> .
     ?audioFile rdf:type ac:AudioFile .
     _:originalFile rdf:type ac:AudioFile ;
         ebu:locator ?origFile .
-    
+
   }
   ITERATOR iter:JSONElement(?source,"items[*]") AS ?resIterator
   WHERE {

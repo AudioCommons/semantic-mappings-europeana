@@ -1,4 +1,4 @@
-PREFIX cc: <https://creativecommons.org/ns#>
+PREFIX cc: <http://creativecommons.org/ns#>
 PREFIX ac: <https://w3id.org/ac-ontology/aco#>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX iter: <http://w3id.org/sparql-generate/iter/>

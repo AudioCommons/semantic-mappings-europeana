@@ -66,7 +66,7 @@ GENERATE {
     BIND(IRI(CONCAT(STR(europeana-res:), STR(fn:JSONPath(?res, "id")))) AS ?audioClip)
     BIND(fn:JSONPath(?res, "type") AS ?type)
     BIND(fn:JSONPath(?res, "title[0]") AS ?title)
-    BIND(fn:JSONPath(?res, "rights[0]") AS ?license)
+    BIND(IRI(fn:JSONPath(?res, "rights[0]")) AS ?license)
     BIND(fn:JSONPath(?res, "dcCreator[0]") AS ?author)
     BIND(fn:JSONPath(?res, "dcDescription[0]") AS ?desc)
 #    BIND(IRI(fn:JSONPath(?res, "edmIsShownAt[0]")) AS ?origFile)

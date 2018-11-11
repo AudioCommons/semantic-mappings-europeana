@@ -12,83 +12,97 @@ PREFIX ebu: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#>
 
 PREFIX europeana-res: <https://w3id.org/audiocommons/services/europeana/resources>
 
+PREFIX europeana-api: <https://www.europeana.eu/api/v2/>
+
 GENERATE {
-  <http://europeana.eu>
-      rdf:type prov:Agent, foaf:Organization ;
-      foaf:name "Europeana" .
-
-  ?searchAction
-      a schema:SearchAction ;
-      schema:object <http://europeana.eu> ;
-      schema:query "$pattern" ;
-      schema:startTime $startTime;
-      schema:endTime ?endTime;
-      schema:actionStatus ?actionStatus;
-      schema:result ?audioCollection ;
-      schema:error ?error .
-
-  ?audioCollection
-      rdf:type ac:AudioCollection; #, prov:Entity ;
-  #    prov:wasAttributedTo <http://europeana.eu> ;
-      ac:nodeCount ?nodeCount .
-
-  ?error rdfs:label ?errorMessage .
 
   GENERATE {
-    ?audioCollection ac:memberNode ?audioCollectionNode .
-    ?audioCollectionNode
-        a ac:AudioCollectionNode ;
-        ac:nodeIndex ?index ;
-        ac:nodeContent ?audioClip .
+    <http://europeana.eu>
+        rdf:type prov:Agent, foaf:Organization ;
+        foaf:name "Europeana" .
 
-    ?audioClip
-        rdf:type ac:AudioClip ;
-        dc:title ?title ;
-	      dc:description ?desc ;
-	      ac:author ?author ;
-	      cc:license ?license ;
-#	      ac:originalFile _:originalFile ;
-        ac:availableAs ?audioPreviewFile .
-#        rdf:type prov:Entity ;
-#        prov:wasAttributedTo <http://europeana.eu> .
-    ?audioPreviewFile rdf:type ac:AudioFile ;
-        ebu:locator ?audioPreviewFileUrl .
+    ?searchAction
+        a schema:SearchAction ;
+        schema:object <http://europeana.eu> ;
+        schema:query "$pattern" ;
+        schema:startTime $startTime;
+        schema:endTime ?endTime;
+        schema:actionStatus ?actionStatus;
+        schema:result ?audioCollection ;
+        schema:error ?error .
 
-  }
-  ITERATOR iter:JSONElement(?source,"items[*]") AS ?resIterator
-  WHERE {
-    BIND(BNODE() AS ?audioCollectionNode)
-    BIND(fn:JSONPath(?resIterator, "element") AS ?res)
-    BIND(fn:JSONPath(?resIterator, "position") AS ?indexFromZero)
-    BIND(?indexFromZero + 1 AS ?index)
+    ?audioCollection
+        rdf:type ac:AudioCollection; #, prov:Entity ;
+    #    prov:wasAttributedTo <http://europeana.eu> ;
+        ac:nodeCount ?nodeCount .
 
-    BIND(IRI(CONCAT(STR(europeana-res:), STR(fn:JSONPath(?res, "id")))) AS ?audioClip)
-    BIND(fn:JSONPath(?res, "type") AS ?type)
-    BIND(fn:JSONPath(?res, "title[0]") AS ?title)
-    BIND(IRI(fn:JSONPath(?res, "rights[0]")) AS ?license)
-    BIND(fn:JSONPath(?res, "dcCreator[0]") AS ?author)
-    BIND(fn:JSONPath(?res, "dcDescription[0]") AS ?desc)
-#    BIND(IRI(fn:JSONPath(?res, "edmIsShownAt[0]")) AS ?origFile)
-    BIND(IRI(fn:JSONPath(?res, "edmIsShownBy[0]")) AS ?audioPreviewFileUrl)
-    OPTIONAL {
-      BIND(BNODE() AS ?audioPreviewFile).
-      FILTER(BOUND(?audioPreviewFileUrl))
+    ?error rdfs:label ?errorMessage .
+
+    GENERATE {
+      ?audioCollection ac:memberNode ?audioCollectionNode .
+      ?audioCollectionNode
+          a ac:AudioCollectionNode ;
+          ac:nodeIndex ?index ;
+          ac:nodeContent ?audioClip .
+
+      ?audioClip
+          rdf:type ac:AudioClip ;
+          dc:title ?title ;
+  	      dc:description ?desc ;
+  	      ac:author ?author ;
+  	      cc:license ?license ;
+  #	      ac:originalFile _:originalFile ;
+          ac:availableAs ?audioPreviewFile .
+  #        rdf:type prov:Entity ;
+  #        prov:wasAttributedTo <http://europeana.eu> .
+      ?audioPreviewFile rdf:type ac:AudioFile ;
+          ebu:locator ?audioPreviewFileUrl .
+
     }
+    ITERATOR iter:JSONElement(?source,"items[*]") AS ?resIterator
+    WHERE {
+      BIND(BNODE() AS ?audioCollectionNode)
+      BIND(fn:JSONPath(?resIterator, "element") AS ?res)
+      BIND(fn:JSONPath(?resIterator, "position") AS ?indexFromZero)
+      BIND(?indexFromZero + 1 AS ?index)
+
+      BIND(IRI(CONCAT(STR(europeana-res:), STR(fn:JSONPath(?res, "id")))) AS ?audioClip)
+      BIND(fn:JSONPath(?res, "type") AS ?type)
+      BIND(fn:JSONPath(?res, "title[0]") AS ?title)
+      BIND(IRI(fn:JSONPath(?res, "rights[0]")) AS ?license)
+      BIND(fn:JSONPath(?res, "dcCreator[0]") AS ?author)
+      BIND(fn:JSONPath(?res, "dcDescription[0]") AS ?desc)
+  #    BIND(IRI(fn:JSONPath(?res, "edmIsShownAt[0]")) AS ?origFile)
+      BIND(IRI(fn:JSONPath(?res, "edmIsShownBy[0]")) AS ?audioPreviewFileUrl)
+      OPTIONAL {
+        BIND(BNODE() AS ?audioPreviewFile).
+        FILTER(BOUND(?audioPreviewFileUrl))
+      }
+    } .
+  }
+  SOURCE ?serviceCall AS ?source
+  WHERE {
+    BIND(BNODE() AS ?searchAction)
+    BIND(fn:JSONPath(?source, "success") AS ?wasSuccessful)
+    BIND(IF(BOUND(?wasSuccessful), schema:CompletedActionStatus, schema:FailedActionStatus) AS ?actionStatus)
+    OPTIONAL {
+    	BIND(BNODE() AS ?audioCollection) .
+      FILTER(BOUND(?wasSuccessful))
+    }
+    OPTIONAL {
+    	BIND(BNODE() AS ?error) .
+      FILTER(!BOUND(?wasSuccessful))
+    }
+    BIND(fn:JSONPath(?source, "error") AS ?errorMessage)  .
+    BIND(NOW() AS ?endTime)
   } .
 }
-SOURCE <https://www.europeana.eu/api/v2/search.json?wskey=$token&query=$pattern&qf=what:SOUND&reusability=RESTRICTED&reusability=OPEN&media=true&profile=rich> AS ?source
 WHERE {
-  BIND(BNODE() AS ?searchAction)
-  BIND(fn:JSONPath(?source, "success") AS ?wasSuccessful)
-  BIND(IF(BOUND(?wasSuccessful), schema:CompletedActionStatus, schema:FailedActionStatus) AS ?actionStatus)
-  OPTIONAL {
-  	BIND(BNODE() AS ?audioCollection) .
-    FILTER(BOUND(?wasSuccessful))
-  }
-  OPTIONAL {
-  	BIND(BNODE() AS ?error) .
-    FILTER(!BOUND(?wasSuccessful))
-  }
-  BIND(fn:JSONPath(?source, "error") AS ?errorMessage)  .
-  BIND(NOW() AS ?endTime)
+  BIND(IRI(CONCAT(
+      STR(europeana-api:), "search.json",
+      "?wskey=", ENCODE_FOR_URI($token),
+      "&qf=what:SOUND",
+      "&reusability=RESTRICTED&reusability=OPEN",
+      "&media=true&profile=rich",
+      "&query=", ENCODE_FOR_URI($pattern) )) AS ?serviceCall)
 }

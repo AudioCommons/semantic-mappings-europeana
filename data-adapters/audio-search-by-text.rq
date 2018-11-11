@@ -24,7 +24,7 @@ GENERATE {
     ?searchAction
         a schema:SearchAction ;
         schema:object <http://europeana.eu> ;
-        schema:query "$pattern" ;
+        schema:query $pattern ;
         schema:startTime $startTime;
         schema:endTime ?endTime;
         schema:actionStatus ?actionStatus;

@@ -104,5 +104,7 @@ WHERE {
       "&qf=what:SOUND",
       "&reusability=RESTRICTED&reusability=OPEN",
       "&media=true&profile=rich",
-      "&query=", ENCODE_FOR_URI($pattern) )) AS ?serviceCall)
+      "&query=", ENCODE_FOR_URI($pattern),
+      IF(BOUND($limit), CONCAT("&rows=", ENCODE_FOR_URI(STR($limit))),"")
+  )) AS ?serviceCall)
 }

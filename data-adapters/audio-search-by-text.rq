@@ -105,6 +105,7 @@ WHERE {
       "&reusability=RESTRICTED&reusability=OPEN",
       "&media=true&profile=rich",
       "&query=", ENCODE_FOR_URI($pattern),
-      IF(BOUND($limit), CONCAT("&rows=", ENCODE_FOR_URI(STR($limit))),"")
+      IF(BOUND($limit), CONCAT("&rows=", ENCODE_FOR_URI(STR($limit))),""),
+      IF(BOUND($page), CONCAT("&start=", ENCODE_FOR_URI(STR($limit * ($page - 1) + 1))),"")
   )) AS ?serviceCall)
 }
